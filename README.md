@@ -12,7 +12,7 @@ npm run build
 python3 -m http.server 8080 --directory dist
 ```
 
-The static preview supports navigation, project filters, service selection and form validation. `/api/config` and `/api/leads` require Cloudflare Pages Functions. The preview never fabricates a successful submission. `dist/` contains only public website assets; `functions/` must remain at the repository root for Pages Functions discovery.
+The static preview supports navigation, project filters, service selection and form validation. `/api/config` and `/api/leads` require Cloudflare Pages Functions. The preview never fabricates a successful submission. Project images are optimized local WebP assets. `dist/` contains only public website assets; `functions/` must remain at the repository root for Pages Functions discovery.
 
 ## Implemented
 
@@ -65,7 +65,7 @@ To integrate a consent-aware analytics adapter later, listen for these events an
 ## Content and launch checklist
 
 - Client approves contact destinations, WhatsApp number, project statistics, testimonial reuse and privacy wording/retention.
-- Replace labelled illustrative stock project imagery with approved real site photographs. The logo is currently loaded from the original WordPress uploads: copy approved branding locally before retiring WordPress hosting.
+- The three project photographs are supplied through the client’s Drive folder; confirm rights and project identification before production publication. The logo is currently loaded from the original WordPress uploads: copy approved branding locally before retiring WordPress hosting.
 - Inventory old WordPress URLs before cutover. Redirects currently cover `/about`, `/services`, `/contact` and their trailing-slash forms; expand for any other indexed pages. Retain original uploads or migrate every referenced asset.
 - Preserve all existing email MX/TXT records when changing web DNS. Take a WordPress/database backup and record a rollback plan.
 - Test both forms on the preview and production origins using real Turnstile, D1 and provider credentials: stored row, success state, email receipt, optional WhatsApp receipt, spam rejection, retries and mobile interaction.
