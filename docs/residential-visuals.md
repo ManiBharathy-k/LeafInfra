@@ -1,11 +1,13 @@
-# Residential visual concepts
+# Real residential inspiration photographs
 
-Created with the built-in image generation tool on 28 October 2026 for the Leaf Infra website. These are conceptual architectural visualizations, not completed Leaf Infra projects. Every displayed concept has visible disclosure. Generated PNG masters remain in the creation workspace; optimized WebP site assets are versioned with the repository.
+Replaced the three generated visual assets on 28 October 2026 at the user’s request. No generated raster photographs are referenced or included in the deployed site assets.
 
-## Final prompt set
+| Placement | Photographer | Source | Image CDN |
+| --- | --- | --- | --- |
+| Main villa hero and first gallery tab | Gustavo Galeano Maz | https://www.pexels.com/photo/exterior-of-a-modern-villa-13752348/ | https://images.pexels.com/photos/13752348/pexels-photo-13752348.jpeg |
+| Garden-home inspiration and Villas image | Max Vakhtbovych | https://www.pexels.com/photo/courtyard-of-modern-cottage-house-5997992/ | https://images.pexels.com/photos/5997992/pexels-photo-5997992.jpeg |
+| Larger-home inspiration and detail explorer | Viktoriia Kondratiuk | https://www.pexels.com/photo/stylish-modern-villa-17174767/ | https://images.pexels.com/photos/17174767/pexels-photo-17174767.jpeg |
 
-- `assets/concepts/villa-exterior.webp`: Premium photorealistic architectural visualization of a plausible two-storey Chennai villa. Warm ivory plaster, stone, timber screens, shaded balcony, garden and late-afternoon sun. Wide three-quarter street view, full building visible. No people, text, logos or watermarks; inspirational concept rather than a real project.
-- `assets/concepts/courtyard-home.webp`: Photorealistic South Indian villa courtyard, shaded verandah, central frangipani, stone floors, timber doors and daylight through an open roof. View from covered living room, quiet natural materials, realistic residential scale. No people, text, logos or watermarks.
-- `assets/concepts/large-residence.webp`: Photorealistic spacious three-level Chennai family residence, layered stone and ivory volumes, recessed windows, timber screens, shaded terraces, terracotta accent and double-height entry. Broad three-quarter dusk view with warm interior light. No people, cars, text, logos or watermarks.
+Pexels licence: https://www.pexels.com/license/ (checked 28 October 2026). The source pages identify these as stock photographs; the first and second include camera information and capture dates. Free reuse on websites is permitted under the Pexels licence. It is not an open-source/CC0 licence. Do not imply photographer/owner endorsement, or present stock images as completed Leaf Infra work. Credit links are visible on `/photo-credits`; inspiration captions distinguish these images from the client portfolio.
 
-No external photographer's work is represented as Leaf Infra's work. Existing client-supplied project photos remain in `assets/projects/`. The courtyard/residence illustrations do not imply that interior design, architectural design or landscaping packages are included in any construction contract. Scope must be agreed with the client.
+Original CDN images are referenced with display-size parameters, without generative edits. Pexels receives browser image requests. The architecture SVG is a code-authored illustrative model; it is not a real project photograph. Its animation is exclusively on `/villas#construction-process`, starts on viewport entry, and provides pause/replay and stage controls.

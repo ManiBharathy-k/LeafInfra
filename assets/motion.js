@@ -35,7 +35,12 @@ if (panel) {
   play.addEventListener('click',()=> playing ? stop() : start());
   reducedMotion.addEventListener('change',()=> { if (reducedMotion.matches) { stop(); show(4); } });
   document.addEventListener('visibilitychange',()=> { if (document.hidden) stop(); });
-  if (!reducedMotion.matches) start();
+  if (!reducedMotion.matches && 'IntersectionObserver' in window) {
+    const buildObserver = new IntersectionObserver(entries=> {
+      if(entries.some(entry=>entry.isIntersecting)) { start();buildObserver.disconnect(); }
+    },{threshold:0.25});
+    buildObserver.observe(panel);
+  }
 }
 const projectType = new URLSearchParams(location.search).get('type');
 const category = document.getElementById('d-type');
