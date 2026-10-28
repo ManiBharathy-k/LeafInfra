@@ -3,3 +3,6 @@ dist/
 .dev.vars
 .wrangler/
 .env
+
+__pycache__/
+*.pyc

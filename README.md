@@ -86,3 +86,7 @@ To integrate a consent-aware analytics adapter later, listen for these events an
 The architecture SVG is a conceptual illustration. Animation runs once, can be paused or replayed, stops when the tab is hidden, and defaults to a complete still house under reduced motion. Stage buttons remain usable without automatic motion.
 
 Cloudflare Pages automatically redirects `.html` pages to extensionless URLs. Internal links, canonical metadata and the sitemap use those clean URLs. `_redirects` only normalizes legacy trailing slashes; never redirect a clean URL back to `.html`. `scripts/check-site.py` checks for cycles including Cloudflare’s automatic HTML canonicalization.
+
+## Residential visual update
+
+Three AI-generated residential concepts are stored in `assets/concepts/` and visibly labelled as inspiration, separate from real portfolio photographs. The homepage uses an image-led hero and accessible concept tabs; Villas alone contains the construction animation; Large Homes uses interactive detail markers. Optional land status, budget, start timeline and concept preferences are appended to the validated enquiry message and saved/delivered through the existing backend. They are not pricing quotes. `scripts/visual_content.py` owns the page-specific visual sections and is imported by the page generator. Image provenance and generation briefs are in `docs/residential-visuals.md`.

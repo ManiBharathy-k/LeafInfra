@@ -45,6 +45,8 @@ forms.forEach((form, index) => {
     if (!token) { show('Please complete the security check.'); return; }
     const data = new FormData(form);
     const payload = Object.fromEntries(['name','phone','email','projectType','location','area','message','website'].map(key => [key, data.get(key) || '']));
+    const brief = [['Land status','landStatus'],['Budget range','budget'],['Target start','timeline'],['Visual preference','concept']].map(([label,key]) => data.get(key) ? label + ': ' + data.get(key) : '').filter(Boolean).join('\n');
+    payload.message = [payload.message, brief ? 'Project planning preferences\n' + brief : ''].filter(Boolean).join('\n\n');
     Object.assign(payload, { consent: data.get('consent') === 'on', source: form.dataset.form, attribution, submissionId: form.dataset.submissionId, turnstileToken: token });
     submit.disabled = true; const label = submit.textContent; submit.textContent = 'Sending enquiry…';
     try {
