@@ -21,7 +21,7 @@ for f in root.glob('*.html'):
 for name,p in pages.items():
  for ref in p.refs:
   url=urlsplit(ref)
-  if url.scheme or url.netloc:continue
+  if url.scheme or url.netloc or url.path=='/cdn-cgi/access/logout':continue
   target=unquote(url.path).lstrip('/') or (name if ref.startswith('#') else 'index.html')
   if not (root/target).is_file() and (root/(target+'.html')).is_file():target+='.html'
   assert (root/target).is_file(),(name,ref,'missing target')
