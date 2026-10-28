@@ -1,6 +1,6 @@
 # Leaf Infra
 
-Construction marketing website and Cloudflare Pages lead capture backend. This repository is the redesign of the original WordPress site at https://leafinfra.com. **Build and review first; deployment and DNS cutover are deferred.**
+Multi-page villa and large-home construction website with a Cloudflare Pages lead capture backend. This repository is the redesign of the original WordPress site at https://leafinfra.com. The `build/lead-generation` branch is connected to the user’s Cloudflare testing project. Production domain cutover remains deferred.
 
 ## Local build and checks
 
@@ -12,11 +12,14 @@ npm run build
 python3 -m http.server 8080 --directory dist
 ```
 
-The static preview supports navigation, project filters, service selection and form validation. `/api/config` and `/api/leads` require Cloudflare Pages Functions. The preview never fabricates a successful submission. Project images are optimized local WebP assets. `dist/` contains only public website assets; `functions/` must remain at the repository root for Pages Functions discovery.
+The static preview supports page navigation, construction-stage controls, project filters, service selection and form validation. `/api/config` and `/api/leads` require Cloudflare Pages Functions. The preview never fabricates a successful submission. Project images are optimized local WebP assets. `dist/` contains only public website assets; `functions/` must remain at the repository root for Pages Functions discovery.
 
 ## Implemented
 
-- Responsive green-and-gold website, service enquiry selection, project filtering, keyboard navigation, reduced motion.
+- Ten marketing pages plus privacy: Home, Villas, Large homes, Services, Commercial, Institutional, Structural, Projects, About and Contact.
+- Architectural cream/green/copper design, interactive five-stage SVG house construction sequence, pause/replay, scroll reveals and reduced-motion support.
+- Dedicated villa and large-home content, project filtering, keyboard navigation and service-prefilled contact enquiries.
+- Existing school and apartment projects are labelled accurately; the villa illustration is explicitly a concept. No completed villa projects or fixed pricing are invented.
 - Original site's published phone numbers, email, address, project claims, and two short testimonial excerpts.
 - Call and WhatsApp links; actual WhatsApp ownership of the published primary number must be confirmed by the client.
 - Two forms with explicit contact consent, honeypot, Turnstile, server validation, bounded request size and per-IP-hash rate limit (5 attempts/10 minutes).
@@ -66,7 +69,7 @@ To integrate a consent-aware analytics adapter later, listen for these events an
 
 - Client approves contact destinations, WhatsApp number, project statistics, testimonial reuse and privacy wording/retention.
 - The three project photographs are supplied through the client’s Drive folder; confirm rights and project identification before production publication. The logo is currently loaded from the original WordPress uploads: copy approved branding locally before retiring WordPress hosting.
-- Inventory old WordPress URLs before cutover. Redirects currently cover `/about`, `/services`, `/contact` and their trailing-slash forms; expand for any other indexed pages. Retain original uploads or migrate every referenced asset.
+- Inventory old WordPress URLs before cutover. Redirects currently cover `/about`, `/services`, `/contact`, `/projects`, `/villas`, `/large-homes` and their trailing-slash forms; expand for any other indexed pages. Retain original uploads or migrate every referenced asset.
 - Preserve all existing email MX/TXT records when changing web DNS. Take a WordPress/database backup and record a rollback plan.
 - Test both forms on the preview and production origins using real Turnstile, D1 and provider credentials: stored row, success state, email receipt, optional WhatsApp receipt, spam rejection, retries and mobile interaction.
 - Run mobile/desktop checks and verify security headers, redirect behavior, sitemap, canonical URL, HTTPS and Search Console ownership after deployment.
@@ -75,3 +78,9 @@ To integrate a consent-aware analytics adapter later, listen for these events an
 ## Verification boundaries
 
 `npm test` runs mocked server integration tests including validation, origin checks, body bounds, persistence, notification failure, duplicate retries and abuse limits. SQL migration is also compatible with SQLite for local schema checks. Tests do not prove Cloudflare binding configuration, real Turnstile or provider delivery; those require the later environment setup. No production account or DNS changes are made by this build.
+
+## Page authoring
+
+`python3 scripts/generate-pages.py` rebuilds the ten marketing HTML pages, sitemap and structured-data CSP hash from the shared page definitions. The generated HTML is committed so Cloudflare only needs Node for `npm run build`. Edit shared page content in that generator, styles in `assets/design.css`, construction/reveal behavior in `assets/motion.js`, and forms in `assets/site.js`. Privacy remains independently authored. After regeneration, run `python3 scripts/check-site.py` and `npm test`, then `npm run build`.
+
+The architecture SVG is a conceptual illustration. Animation runs once, can be paused or replayed, stops when the tab is hidden, and defaults to a complete still house under reduced motion. Stage buttons remain usable without automatic motion.
