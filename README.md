@@ -17,7 +17,7 @@ The static preview supports page navigation, construction-stage controls, projec
 ## Implemented
 
 - Ten marketing pages plus privacy: Home, Villas, Large homes, Services, Commercial, Institutional, Structural, Projects, About and Contact.
-- Architectural cream/green/copper design, interactive five-stage SVG house construction sequence, pause/replay, scroll reveals and reduced-motion support.
+- Logo-blue, white and charcoal design; rotatable 3D villa, structural/floor cutaways, conceptual blueprint views and reduced-motion-aware reveals.
 - Dedicated villa and large-home content, project filtering, keyboard navigation and service-prefilled contact enquiries.
 - Existing school and apartment projects are labelled accurately; the villa illustration is explicitly a concept. No completed villa projects or fixed pricing are invented.
 - Original site's published phone numbers, email, address, project claims, and two short testimonial excerpts.
@@ -83,7 +83,7 @@ To integrate a consent-aware analytics adapter later, listen for these events an
 
 `python3 scripts/generate-pages.py` rebuilds the ten marketing HTML pages, sitemap and structured-data CSP hash from the shared page definitions. The generated HTML is committed so Cloudflare only needs Node for `npm run build`. Edit shared page content in that generator, styles in `assets/design.css`, construction/reveal behavior in `assets/motion.js`, and forms in `assets/site.js`. Privacy remains independently authored. After regeneration, run `python3 scripts/check-site.py` and `npm test`, then `npm run build`.
 
-The architecture SVG is a conceptual illustration. Animation runs once, can be paused or replayed, stops when the tab is hidden, and defaults to a complete still house under reduced motion. Stage buttons remain usable without automatic motion.
+The architecture SVG is a still conceptual fallback. The current interactive villa studio renders on demand in Canvas and does not autoplay. Keyboard and button controls complement drag rotation.
 
 Cloudflare Pages automatically redirects `.html` pages to extensionless URLs. Internal links, canonical metadata and the sitemap use those clean URLs. `_redirects` only normalizes legacy trailing slashes; never redirect a clean URL back to `.html`. `scripts/check-site.py` checks for cycles including Cloudflare’s automatic HTML canonicalization.
 
@@ -91,4 +91,15 @@ Cloudflare Pages automatically redirects `.html` pages to extensionless URLs. In
 
 Real Pexels photographs now illustrate residential inspiration, separate from real client portfolio photographs. The former generated images have been removed from the deployed assets. The homepage uses an image-led hero and accessible concept tabs; Villas alone contains the construction animation; Large Homes uses interactive detail markers. Optional land status, budget, start timeline and concept preferences are appended to the validated enquiry message and saved/delivered through the existing backend. They are not pricing quotes. `scripts/visual_content.py` owns the page-specific visual sections and is imported by the page generator. Photographer credits, source pages and the reuse licence are in `docs/residential-visuals.md` and the public `/photo-credits` page.
 
-The construction model is on `/villas#construction-process`, with prominent jump links from Home and Villas. Its automatic sequence begins only when the model enters the viewport, rather than finishing while the visitor is elsewhere on the page. Images are served by the Pexels CDN, allowed by the site CSP; this adds a third-party image request.
+The villa studio is on `/villas#villa-studio`, with prominent jump links from Home and Villas. The previous `/villas#construction-process` anchor still reaches the studio section. The model is controlled by the visitor. Images are served by the Pexels CDN, allowed by the site CSP; this adds a third-party image request.
+
+## Blue identity and interactive villa studio
+
+The current visual identity follows the logo with blue, white and charcoal. `/villas#villa-studio` contains a locally rendered 3D concept villa and two schematic blueprint views, replacing the old staged house animation. Home includes a prominent studio link and a static blueprint preview.
+
+- `assets/villa-geometry.mjs`: original mesh construction and orthographic camera projection; unit-tested structural/finished variants and floor cutaways.
+- `assets/villa-studio.js`: event-driven Canvas 2D renderer for 3D polygons. Drag or use arrow keys/rotate controls; zoom/reset; switch finished/structure and exterior/floor cutaways. No WebGL, external rendering library, continuous animation or model downloads. Rendering resolution is capped for phones.
+- `scripts/studio_content.py`: original conceptual SVG floor layouts and studio markup. No construction dimensions. These are not approved plans or documented client projects.
+- A still SVG is shown until the model renders. Blueprint switching works independently of Canvas support. If JavaScript is unavailable the still illustration and concept disclosure remain visible.
+
+The service CTA carries `Contemporary villa` into the project brief. This is style preference, not a promise that this concept can be built on a particular plot. New backend tests remain in the existing suite; `tests/villa-geometry.test.js` adds camera/mesh checks. Browser QA covers view switching, floor cutaways, blueprint switching and mobile width.
