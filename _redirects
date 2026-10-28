@@ -1,12 +1,12 @@
-/about /about.html 301
-/about/ /about.html 301
-/services /services.html 301
-/services/ /services.html 301
-/contact /contact.html 301
-/contact/ /contact.html 301
-/projects /projects.html 301
-/projects/ /projects.html 301
-/villas /villas.html 301
-/villas/ /villas.html 301
-/large-homes /large-homes.html 301
-/large-homes/ /large-homes.html 301
+# Cloudflare Pages serves .html files at extensionless URLs.
+# Never redirect an extensionless URL back to .html: that creates a loop.
+/about/ /about 301
+/services/ /services 301
+/contact/ /contact 301
+/projects/ /projects 301
+/villas/ /villas 301
+/large-homes/ /large-homes 301
+/commercial/ /commercial 301
+/institutional/ /institutional 301
+/structural/ /structural 301
+/privacy/ /privacy 301

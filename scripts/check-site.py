@@ -23,7 +23,21 @@ for name,p in pages.items():
   url=urlsplit(ref)
   if url.scheme or url.netloc:continue
   target=unquote(url.path).lstrip('/') or (name if ref.startswith('#') else 'index.html')
+  if not (root/target).is_file() and (root/(target+'.html')).is_file():target+='.html'
   assert (root/target).is_file(),(name,ref,'missing target')
   if url.fragment and target in pages:assert url.fragment in pages[target].ids,(name,ref,'missing fragment')
 ET.parse(root/'sitemap.xml');ET.parse(root/'assets/architecture.svg')
 print(f'Checked {len(pages)} pages: titles, single h1, unique ids, local links/assets, fragments, sitemap and SVG')
+
+# Model Cloudflare's automatic .html canonical redirects alongside custom rules.
+edges={'/'+name:'/'+name.removesuffix('.html') for name in pages if name!='index.html'}
+for line in (root/'_redirects').read_text().splitlines():
+ if not line.strip() or line.lstrip().startswith('#'):continue
+ source,destination,status=line.split()
+ if status in ('301','302','303','307','308'):edges[source]=destination
+for start in edges:
+ seen=set(); current=start
+ while current in edges:
+  assert current not in seen,('redirect cycle',start,current)
+  seen.add(current);current=edges[current]
+print('Cloudflare canonicalization and custom redirect cycle checks passed')

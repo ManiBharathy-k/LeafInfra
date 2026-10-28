@@ -22,7 +22,7 @@ The static preview supports page navigation, construction-stage controls, projec
 - Existing school and apartment projects are labelled accurately; the villa illustration is explicitly a concept. No completed villa projects or fixed pricing are invented.
 - Original site's published phone numbers, email, address, project claims, and two short testimonial excerpts.
 - Call and WhatsApp links; actual WhatsApp ownership of the published primary number must be confirmed by the client.
-- Two forms with explicit contact consent, honeypot, Turnstile, server validation, bounded request size and per-IP-hash rate limit (5 attempts/10 minutes).
+- A project enquiry form with explicit contact consent, honeypot, Turnstile, server validation, bounded request size and per-IP-hash rate limit (5 attempts/10 minutes).
 - D1 lead storage before confirmation, UUID retry deduplication, campaign source fields, consent version and notification status.
 - Optional Resend email and approved-template Meta WhatsApp alerts; notification failure never discards a saved enquiry.
 - Privacy notice, structured business data, canonical URL, sitemap, legacy page redirects, security headers.
@@ -84,3 +84,5 @@ To integrate a consent-aware analytics adapter later, listen for these events an
 `python3 scripts/generate-pages.py` rebuilds the ten marketing HTML pages, sitemap and structured-data CSP hash from the shared page definitions. The generated HTML is committed so Cloudflare only needs Node for `npm run build`. Edit shared page content in that generator, styles in `assets/design.css`, construction/reveal behavior in `assets/motion.js`, and forms in `assets/site.js`. Privacy remains independently authored. After regeneration, run `python3 scripts/check-site.py` and `npm test`, then `npm run build`.
 
 The architecture SVG is a conceptual illustration. Animation runs once, can be paused or replayed, stops when the tab is hidden, and defaults to a complete still house under reduced motion. Stage buttons remain usable without automatic motion.
+
+Cloudflare Pages automatically redirects `.html` pages to extensionless URLs. Internal links, canonical metadata and the sitemap use those clean URLs. `_redirects` only normalizes legacy trailing slashes; never redirect a clean URL back to `.html`. `scripts/check-site.py` checks for cycles including Cloudflare’s automatic HTML canonicalization.

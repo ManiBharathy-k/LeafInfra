@@ -32,7 +32,7 @@ document.querySelectorAll('[data-conversion]').forEach(link => link.addEventList
 forms.forEach((form, index) => {
   form.dataset.submissionId = submissionId();
   const fields = document.createElement('div'); fields.style.display = 'contents';
-  fields.innerHTML = `<label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label><label class="consent"><input type="checkbox" name="consent" required><span>I agree to Leaf Infra contacting me about this project. Read the <a href="/privacy.html">privacy notice</a>.</span></label><div class="security-check" id="security-${index}"></div>`;
+  fields.innerHTML = `<label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label><label class="consent"><input type="checkbox" name="consent" required><span>I agree to Leaf Infra contacting me about this project. Read the <a href="/privacy">privacy notice</a>.</span></label><div class="security-check" id="security-${index}"></div>`;
   const submit = form.querySelector('button[type="submit"]');
   const anchor = form.querySelector('.submit-wrap') || submit;
   anchor.before(fields);
