@@ -4,7 +4,7 @@ from studio_content import studio
 import re
 root=Path(__file__).resolve().parent.parent
 source=(root/'contact.html').read_text()
-head=source[:source.index('<main id="main">')]
+head=source[:source.index('<main id="main">')].replace(' aria-current="page"','')
 head=re.sub(r'<title>.*?</title>','<title>Thank you | Leaf Infra</title>',head)
 head=re.sub(r'<link rel="canonical"[^>]*>','<meta name="robots" content="noindex,follow">',head)
 head=re.sub(r'<meta property="og:title"[^>]*>', '<meta property="og:title" content="Your next chapter | Leaf Infra">', head)

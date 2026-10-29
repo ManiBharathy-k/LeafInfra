@@ -1,7 +1,7 @@
 from pathlib import Path
 import html,json,hashlib,base64
 root=Path(__file__).resolve().parent.parent
-nav=[('index.html','Home'),('villas.html','Villas'),('large-homes.html','Large homes'),('projects.html','Our work'),('about.html','About'),('contact.html','Contact')]
+nav=[('index.html','Home'),('services.html','What we do'),('villas.html','Villas'),('large-homes.html','Large homes'),('projects.html','Our work'),('about.html','About'),('contact.html','Contact')]
 services=[('villas.html','01','Villas & independent homes','A home shaped around your site, your family and the way you want to live.'),('large-homes.html','02','Large homes & multi-level residences','Thoughtful execution for generous spaces, multiple floors and demanding details.'),('commercial.html','03','Commercial construction','Practical spaces built around operational needs and a clearly defined scope.'),('institutional.html','04','Institutional construction','Construction experience across educational campuses and institutional buildings.'),('structural.html','05','Structural & RCC works','Foundations, columns, beams and slabs: the framework your project depends on.'),('services.html','06','Coordinated project execution','Discuss how the team can coordinate your construction scope from start to handover.')]
 def btn(text='Discuss your home',url='/contact.html',light=False):return f'<a class="btn{" light" if light else ""}" href="{url}">{text} <span aria-hidden="true">↗</span></a>'
 def cards(limit=None):
