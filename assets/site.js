@@ -37,7 +37,7 @@ forms.forEach((form, index) => {
   const anchor = form.querySelector('.submit-wrap') || submit;
   anchor.before(fields);
   form.addEventListener('submit', async event => {
-    event.preventDefault(); if (!form.reportValidity()) return;
+    event.preventDefault(); if (form.dataset.sending === 'true' || !form.reportValidity()) return;
     const status = form.querySelector('.form-status');
     function show(text) { status.textContent = text; status.classList.add('show'); }
     if (!form.dataset.widgetId) { show('Online enquiries are being prepared. Please call ' + PHONE + ' or use the WhatsApp link below.'); return; }
@@ -48,15 +48,24 @@ forms.forEach((form, index) => {
     const brief = [['Land status','landStatus'],['Budget range','budget'],['Target start','timeline'],['Visual preference','concept']].map(([label,key]) => data.get(key) ? label + ': ' + data.get(key) : '').filter(Boolean).join('\n');
     payload.message = [payload.message, brief ? 'Project planning preferences\n' + brief : ''].filter(Boolean).join('\n\n');
     Object.assign(payload, { consent: data.get('consent') === 'on', source: form.dataset.form, attribution, submissionId: form.dataset.submissionId, turnstileToken: token });
-    submit.disabled = true; const label = submit.textContent; submit.textContent = 'Sending enquiry…';
+    form.dataset.sending = 'true'; submit.disabled = true; form.setAttribute('aria-busy', 'true');
+    const label = submit.textContent; submit.textContent = 'Sending enquiry…';
+    let progress; const startedAt = performance.now();
+    try { progress = (await import('/assets/submission.mjs')).constructionProgress(); } catch { /* Inline status remains available if the visual cannot load. */ }
+    show('Saving your enquiry securely…');
     try {
       const response = await fetch('/api/leads', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:AbortSignal.timeout(20000) });
       const result = await response.json();
       if (!response.ok || result.ok !== true) throw Error(result.error || 'We could not confirm your enquiry. Please retry or call us.');
       show('Thank you. Your enquiry has been saved. Our team will contact you about your project. Reference: ' + result.reference);
-      track('generate_lead', form.dataset.form); form.reset(); form.dataset.submissionId = submissionId();
+      track('generate_lead', form.dataset.form);
+      try { sessionStorage.setItem('leafinfra:last-enquiry', JSON.stringify({reference:result.reference, savedAt:Date.now()})); } catch { /* Saving the lead does not depend on browser storage. */ }
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) await new Promise(resolve => setTimeout(resolve, Math.max(0, 1200 - (performance.now() - startedAt))));
+      progress?.complete(); form.reset(); form.dataset.submissionId = submissionId();
+      await new Promise(resolve => setTimeout(resolve, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 400));
+      location.assign('/thank-you');
     } catch (error) { show(error.name === 'TimeoutError' ? 'The connection timed out. Retry to confirm the same enquiry, or call us.' : error.message === 'Failed to fetch' ? 'Connection unavailable. Retry or call ' + PHONE : error.message); }
-    finally { window.turnstile.reset(form.dataset.widgetId); submit.disabled = false; submit.textContent = label; }
+    finally { progress?.close(); window.turnstile?.reset(form.dataset.widgetId); form.dataset.sending = 'false'; form.removeAttribute('aria-busy'); submit.disabled = false; submit.textContent = label; }
   });
 });
 async function setupSecurity() {
