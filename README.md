@@ -108,7 +108,7 @@ The service CTA carries `Contemporary villa` into the project brief. This is sty
 
 The `/admin` workspace includes paginated lead search, status/source/follow-up filters, global lead counts, lead details, status updates, team notes, follow-up dates (India calendar dates), click-to-call/WhatsApp/email, and CSV export of the current page (up to 50 records). CSV cells neutralise spreadsheet formula injection. Updates use optimistic revisions so concurrent edits return a conflict instead of overwriting a teammate's changes. There is no public lead API, password embedded in JavaScript, or destructive delete action.
 
-`/admin?demo=1` is a clearly labelled demo using fictional records in memory. It never reads or writes D1. Demo changes disappear on reload. The public admin HTML is only an interface shell; every live data request requires a cryptographically verified Cloudflare Access application JWT.
+The admin dashboard only reads and writes real database records. The public admin HTML is only an interface shell; every live data request requires a cryptographically verified Cloudflare Access application JWT.
 
 ### Activate on the Cloudflare preview
 
