@@ -1,13 +1,14 @@
 import {labels,indiaToday,leadsCsv} from './admin-utils.mjs';
 const $ = id => document.getElementById(id);
 let page=1, rows=[], total=0, current=null, baseline='', listController, detailController;
+let pendingLeadId=null;
 const today=indiaToday();
 function node(tag,text,cls) {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
 function date(value) {if(!value)return '—';return new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(value.length===10 ? value+'T12:00:00+05:30' : value));}
 function filterValues(){return new URLSearchParams(new FormData($('filters')));}
 function due(l){return l.follow_up_date && l.follow_up_date<=today && !['won','lost'].includes(l.status);}
 async function api(path,options={}) {
-  const response=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});
+  const response=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,signal:options.signal ? AbortSignal.any([options.signal,AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000)});
   if(!response.headers.get('content-type')?.includes('application/json'))throw Object.assign(Error('Sign in through Cloudflare Access, then reload this page.'),{code:'sign_in'});
   const data=await response.json();if(!response.ok)throw Object.assign(Error(data.error||'Request failed.'),{code:data.code,status:response.status});return data;
 }
@@ -41,7 +42,7 @@ function renderRows() {
     const tr=node('tr'),client=node('td'),open=node('button',l.name,'lead-open');open.type='button';open.addEventListener('click',()=>openLead(l.id));
     client.append(open,node('small',l.project_type));tr.append(client,node('td',l.location),node('td',l.lead_source));
     const status=node('td');status.append(node('span',labels[l.status]||l.status,'badge '+(labels[l.status]?l.status:'')));tr.append(status);
-    tr.append(node('td',date(l.follow_up_date),due(l)?'due':''),node('td',date(l.created_at)));$('leadsBody').append(tr);
+    tr.append(node('td',date(l.follow_up_date),due(l)?'due':''),node('td',date(l.created_at)));const manage=node('td'),view=node('button','View & manage ↗','manage-lead');view.type='button';view.setAttribute('aria-label','View and manage enquiry from '+l.name);view.addEventListener('click',()=>openLead(l.id));manage.append(view);tr.append(manage);$('leadsBody').append(tr);
   });
   $('empty').hidden=rows.length>0;
   $('emptyText').textContent=[...filterValues().values()].some(Boolean) ? 'Try a different search or reset your filters.' : 'New website enquiries will appear here once the form is active.';
@@ -52,13 +53,21 @@ function snapshot(){return JSON.stringify({status:$('editStatus').value,notes:$(
 function canDiscard(){return !current || snapshot()===baseline || confirm('Discard your unsaved changes?');}
 async function openLead(id) {
   detailController?.abort();const controller=detailController=new AbortController();
-  $('notice').textContent='Opening enquiry…';
+  pendingLeadId=id;current=null;$('save').disabled=false;
+  $('detailTitle').textContent='Opening enquiry…';$('detailContent').hidden=true;
+  $('detailLoadStatus').textContent='Loading project and contact details…';$('retryDetail').hidden=true;
+  if(!$('detail').open)$('detail').showModal();
   try {
-    const lead=(await api('/api/admin/leads/'+encodeURIComponent(id),{signal:controller.signal})).lead;
+    const lead=(await api('/api/admin/leads?id='+encodeURIComponent(id),{signal:controller.signal})).lead;
     if(controller.signal.aborted)return;
-    current=lead;fillDetail(lead);if(!$('detail').open)$('detail').showModal();$('notice').textContent='';
-  } catch(error){if(error.name!=='AbortError'){$('notice').textContent=error.message;$('notice').className='notice error';}}
+    current=lead;fillDetail(lead);$('detailLoadStatus').textContent='';$('detailContent').hidden=false;
+  } catch(error){if(error.name!=='AbortError'){
+    $('detailTitle').textContent='Unable to open this enquiry';
+    $('detailLoadStatus').textContent=error.message;$('retryDetail').hidden=false;
+  }}
 }
+$('retryDetail').addEventListener('click',()=>{if(pendingLeadId)openLead(pendingLeadId);});
+
 function fillDetail(l) {
   $('detailTitle').textContent=l.name;$('detailMeta').textContent=`Received ${date(l.created_at)} · Ref ${l.id.slice(-8)}`;
   $('contactActions').replaceChildren();
@@ -79,15 +88,15 @@ $('editLead').addEventListener('submit',async event=>{
   event.preventDefault();if(!current)return;$('save').disabled=true;$('reloadLead').disabled=true;$('saveNotice').textContent='Saving…';
   const values=JSON.parse(snapshot());
   try {
-    const result=await api('/api/admin/leads/'+encodeURIComponent(current.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({...values,revision:current.revision})});
+    const result=await api('/api/admin/leads?id='+encodeURIComponent(current.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({...values,revision:current.revision})});
     Object.assign(current,{status:values.status,notes:values.notes.trim(),follow_up_date:values.followUpDate,revision:result.revision,updated_at:new Date().toISOString(),updated_by:$('account').textContent});
     fillDetail(current);$('saveNotice').textContent='Changes saved.';await load();
   } catch(error){$('saveNotice').textContent=error.message;}
   finally{$('save').disabled=false;$('reloadLead').disabled=false;}
 });
 $('reloadLead').addEventListener('click',()=>{if(canDiscard())openLead(current.id);});
-$('closeDetail').addEventListener('click',()=>{if(!$('save').disabled && canDiscard()){$('detail').close();current=null;}});
-$('detail').addEventListener('cancel',event=>{if($('save').disabled || !canDiscard())event.preventDefault();else current=null;});
+$('closeDetail').addEventListener('click',()=>{if(!$('save').disabled && canDiscard()){detailController?.abort();$('detail').close();current=null;pendingLeadId=null;}});
+$('detail').addEventListener('cancel',event=>{if($('save').disabled || !canDiscard())event.preventDefault();else {detailController?.abort();current=null;pendingLeadId=null;}});
 window.addEventListener('beforeunload',event=>{if(current && snapshot()!==baseline){event.preventDefault();event.returnValue='';}});
 $('filters').addEventListener('submit',event=>{event.preventDefault();page=1;load();});
 $('clear').addEventListener('click',()=>{$('filters').reset();page=1;load();});

@@ -1,6 +1,10 @@
+import {onRequestGet as getLead, onRequestPatch as patchLead} from './leads/[id].js';
 import {json, filters} from '../../../server/admin.js';
-export async function onRequestGet({request,env,data}) {
-  const url = new URL(request.url); let filter;
+export async function onRequestGet(context) {
+  const {request,env,data} = context;
+  const url = new URL(request.url);
+  if (url.searchParams.has('id')) return getLead({...context, params:{id:url.searchParams.get('id')}});
+  let filter;
   try {filter = filters(url);} catch {return json({error:'Invalid search filters.'},400);}
   const page = Number(url.searchParams.get('page') || 1);
   if (!Number.isInteger(page) || page < 1 || page > 100000) return json({error:'Invalid page.'},400);
@@ -15,4 +19,10 @@ export async function onRequestGet({request,env,data}) {
   ]);
   return json({leads:result[0].results,total:result[1].results[0].total,summary:result[2].results,due:result[3].results[0].count,
     sources:result[4].results.map(row=>row.source),page,pageSize:50,adminEmail:data.adminEmail});
+}
+
+export async function onRequestPatch(context) {
+  const id = new URL(context.request.url).searchParams.get('id');
+  if (!id) return json({error:'Choose an enquiry to update.'},400);
+  return patchLead({...context, params:{id}});
 }

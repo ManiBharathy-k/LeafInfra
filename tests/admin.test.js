@@ -81,3 +81,20 @@ test('website enquiry is persisted, visible in the admin inbox and available for
     const opened=await (await route(await context(db),detail)).json();assert.equal(opened.lead.notes,'Arrange a visit');assert.equal(opened.lead.notification_status,'not_configured');
   }finally{globalThis.fetch=original;sqlite.close();}
 });
+
+test('inbox endpoint opens and updates a lead by query id under the same verified Access session',async()=>{
+  const {onRequestPatch:patchInbox}=await import('../functions/api/admin/leads.js');
+  const original=globalThis.fetch;globalThis.fetch=async()=>Response.json({keys:[jwk]});const {db,sqlite}=database();
+  try{
+    let c=await context(db,{path:'/api/admin/leads?id='+id});
+    let response=await route(c,list);assert.equal(response.status,200);assert.equal((await response.json()).lead.name,'Example Client');
+    response=await route(await context(db,{path:'/api/admin/leads?id='+id,method:'PATCH',body:{status:'quote_sent',notes:'Drawings reviewed; prepare scope.',followUpDate:'2026-11-10',revision:0}}),patchInbox);
+    assert.equal(response.status,200);
+    response=await route(await context(db,{path:'/api/admin/leads?id='+id}),list);
+    const {lead}=await response.json();assert.equal(lead.status,'quote_sent');assert.equal(lead.notes,'Drawings reviewed; prepare scope.');assert.equal(lead.follow_up_date,'2026-11-10');assert.equal(lead.revision,1);
+    assert.equal((await route(await context(db,{path:'/api/admin/leads?id=invalid'}),list)).status,404);
+    assert.equal((await route(await context(db,{path:'/api/admin/leads',method:'PATCH',body:{}}),patchInbox)).status,400);
+    assert.equal((await route(await context(db,{path:'/api/admin/leads?id='+id,method:'PATCH',body:{},origin:'https://attacker.example'}),patchInbox)).status,403);
+    c=await context(db,{path:'/api/admin/leads?id='+id});c.request.headers.delete('Cf-Access-Jwt-Assertion');assert.equal((await route(c,list)).status,401);
+  }finally{globalThis.fetch=original;sqlite.close();}
+});
